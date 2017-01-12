@@ -1,0 +1,26 @@
+{
+  "redis": {
+    "host": "192.168.10.10",
+    "port": 6379,
+    "db": 0
+  },
+  "api_keys": {
+    "google_maps": "",
+    "forecast.io": "",
+    "timezonedb": "",
+    "mashape": "",
+    "wolfram": ""
+  },
+  "irc": {
+    "host": "irc.moparisthebest.com",
+    "port": 6697,
+    "nick": "dave",
+    "nickserv_password": "",
+    "channels": [
+      "#mopar"
+    ]
+  },
+  "socks": "127.0.0.1:9150",
+  "database": "postgresql://homestead:secret@192.168.10.10/dave",
+  "repo": "w4/dave"
+}
