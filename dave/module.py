@@ -88,9 +88,7 @@ def proxied():
     """Decorate a function to always proxy data flowing from it."""
     def proxifier(function):
         def wrapper(*args, **kw):
-            socket.socket = config.proxied_socket
             output = function(*args, **kw)
-            socket.socket = config.default_socket
             return output
 
         return wrapper

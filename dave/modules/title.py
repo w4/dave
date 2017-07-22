@@ -23,10 +23,8 @@ def link_parse(bot, args, sender, source):
 
     for match in matches:
         if not dave.config.redis.exists("site:{}".format(match)):
-            socket.socket = dave.config.proxied_socket
             res = br.open(match)
             data = res.get_data()
-            socket.socket = dave.config.default_socket
 
             soup = BeautifulSoup(data, "html.parser")
             title = soup.title

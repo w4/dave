@@ -48,8 +48,7 @@ def btc(bot, args, sender, source):
             market,
             babel.numbers.format_currency(decimal.Decimal(data['last']) * multiplier,
                                           currency)
-        ).encode('utf-8')
-        for market, data in p['btc'][currencyKey].iteritems()
+        ).encode('utf-8') for market, data in p['btc'][currencyKey].iteritems()
     ])
 
     prices += u'. average: {}'.format(

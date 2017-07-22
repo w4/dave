@@ -65,14 +65,12 @@ def get_location(location):
     key = "location:{}".format(location.lower())
 
     if not dave.config.redis.exists(key):
-        socket.socket = dave.config.proxied_socket
         r = requests.get("https://maps.googleapis.com/maps/api/geocode/json?address={}&key={}".format(
             quote_plus(location),
             dave.config.config["api_keys"]["google_maps"]
         ))
 
         geocode = r.json()
-        socket.socket = dave.config.default_socket
 
         dave.config.redis.set(key, pickle.dumps(geocode))
     else:
@@ -112,7 +110,6 @@ def get_timezone(geocode):
                                   geocode["results"][0]["geometry"]["location"]["lng"])
 
     if not dave.config.redis.exists(key):
-        socket.socket = dave.config.proxied_socket
         r = requests.get("http://api.timezonedb.com/?key={}&lat={}&lng={}&format=json".format(
             dave.config.config["api_keys"]["timezonedb"],
             geocode["results"][0]["geometry"]["location"]["lat"],
@@ -120,7 +117,6 @@ def get_timezone(geocode):
         ))
 
         timezone = r.json()
-        socket.socket = dave.config.default_socket
 
         dave.config.redis.set(key, pickle.dumps(timezone))
     else:
@@ -135,7 +131,6 @@ def get_weather(geocode):
                                  geocode["results"][0]["geometry"]["location"]["lng"])
 
     if not dave.config.redis.exists(key):
-        socket.socket = dave.config.proxied_socket
         r = requests.get("https://api.forecast.io/forecast/{}/{},{}?units=uk2".format(
             dave.config.config["api_keys"]["forecast.io"],
             geocode["results"][0]["geometry"]["location"]["lat"],
@@ -143,7 +138,6 @@ def get_weather(geocode):
         ))
 
         json = r.json()
-        socket.socket = dave.config.default_socket
 
         dave.config.redis.setex(key, 300, pickle.dumps(json))
     else:

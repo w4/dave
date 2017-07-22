@@ -9,7 +9,6 @@ import modules
 import re
 import config
 import datetime
-from models import Message
 from twisted.internet.threads import deferToThread
 
 
@@ -73,21 +72,6 @@ class Dave(irc.IRCClient):
                                     run.append((val, match.groups()))
                                 else:
                                     method = (priority, val, match.groups())
-
-        if not msg.startswith(self.nickname) and channel.startswith("#"):
-            try:
-                # not a direct command so we'll save the response to the db
-                db_msg = Message(
-                    nick=nick,
-                    channel=channel,
-                    message=msg.decode('utf-8', 'ignore').encode('utf-8'),
-                    userhost=user.split("!", 1)[1],
-                    created_at=datetime.datetime.now()
-                )
-                config.session.add(db_msg)
-                config.session.commit()
-            except:
-                log.err()
 
         if method[1] is not None:
             # we matched a command

@@ -1,5 +1,5 @@
-twisted==16.2.0
-pyopenssl==16.0.0
+twisted==17.5.0
+pyopenssl==16.2.0
 service_identity==16.0.0
 enum34==1.1.6
 beautifulsoup4==4.4.1

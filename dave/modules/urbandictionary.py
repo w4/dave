@@ -24,7 +24,6 @@ def urbandictionary(bot, args, sender, source):
         return
 
     if not dave.config.redis.exists("urban_query:{}".format(query)):
-        socket.socket = dave.config.proxied_socket
         url = "https://mashape-community-urban-dictionary.p.mashape.com/define?term={}".format(quote_plus(query))
         r = requests.get(url, headers={
             "X-Mashape-Key": dave.config.config["api_keys"]["mashape"],
@@ -32,7 +31,6 @@ def urbandictionary(bot, args, sender, source):
         })
 
         resp = r.json()
-        socket.socket = dave.config.default_socket
         dave.config.redis.setex("urban_query:{}".format(query), 86400, pickle.dumps(resp))
     else:
         resp = pickle.loads(dave.config.redis.get("urban_query:{}".format(query)))

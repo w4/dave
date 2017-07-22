@@ -21,10 +21,8 @@ def wolfram(bot, args, sender, source):
         return
 
     if query:
-        socket.socket = dave.config.proxied_socket
         client = wolframalpha.Client(dave.config.config["api_keys"]["wolfram"])
         res = client.query(query)
-        socket.socket = dave.config.default_socket
 
         if len(res.pods) > 0:
             resultpod = next(res.results)

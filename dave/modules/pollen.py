@@ -19,10 +19,8 @@ def pollen(bot, args, sender, source):
     text = None
 
     if not dave.config.redis.exists("pollen:{}".format(postcode)):
-        socket.socket = dave.config.proxied_socket
         res = br.open("https://www.bbc.co.uk/weather/{}".format(postcode))
         data = res.get_data()
-        socket.socket = dave.config.default_socket
 
         soup = BeautifulSoup(data, "html.parser")
         element = soup.find_all("div", class_="environmental-index pollen-index")

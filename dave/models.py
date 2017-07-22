@@ -9,13 +9,3 @@ class Location(Base):
     id = Column(Integer, primary_key=True)
     nick = Column(String)
     location = Column(String)
-
-class Message(Base):
-    __tablename__ = "messages"
-
-    id = Column(Integer, primary_key=True)
-    nick = Column(String)
-    channel = Column(String)
-    message = Column(String)
-    userhost = Column(String)
-    created_at = Column(DateTime)
