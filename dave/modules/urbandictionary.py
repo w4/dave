@@ -5,7 +5,7 @@ import dave.config
 import requests
 import pickle
 import re
-from urllib import quote_plus
+from urllib.parse import quote_plus
 from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 
 
@@ -19,7 +19,7 @@ def urbandictionary(bot, args, sender, source):
     key = "urban:{}:{}".format(query, result)
 
     if dave.config.redis.exists(key):
-        bot.reply(source, sender, dave.config.redis.get(key))
+        bot.reply(source, sender, dave.config.redis.get(key).decode('utf-8'))
         return
 
     if not dave.config.redis.exists("urban_query:{}".format(query)):

@@ -16,7 +16,7 @@ def list_modules(bot, args, sender, source):
     for importer, modname, ispkg in pkgutil.iter_modules(path, prefix):
         m = importer.find_module(modname).load_module(modname)
 
-        for name, val in m.__dict__.iteritems():
+        for name, val in m.__dict__.items():
             if callable(val) and hasattr(val, "help"):
                 reply.append(val.help["name"])
 
@@ -34,7 +34,7 @@ def help(bot, args, sender, source):
     for importer, modname, ispkg in pkgutil.iter_modules(path, prefix):
         m = importer.find_module(modname).load_module(modname)
 
-        for name, val in m.__dict__.iteritems():
+        for name, val in m.__dict__.items():
             if callable(val) and hasattr(val, "rule") and hasattr(val, "help"):
                 for rule in val.rule:
                     if "commands" in rule and args[0] in rule["commands"]:

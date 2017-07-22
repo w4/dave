@@ -3,10 +3,6 @@ import json
 import os.path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import socket
-import markovify
-import nltk
-import re
 
 # read the config file
 basepath = os.path.dirname(__file__)

@@ -2,9 +2,8 @@
 """Get the pollen count for a UK postcode."""
 import dave.module
 from bs4 import BeautifulSoup
-from mechanize import Browser
+from requests import get
 from twisted.words.protocols.irc import assembleFormattedText, attributes as A
-import socket
 import dave.config
 
 
@@ -13,16 +12,13 @@ import dave.config
 @dave.module.priority(dave.module.Priority.HIGHEST)
 def pollen(bot, args, sender, source):
     postcode = args[0].lower()
-    br = Browser()
-    br.set_handle_robots(False)
 
     text = None
 
     if not dave.config.redis.exists("pollen:{}".format(postcode)):
-        res = br.open("https://www.bbc.co.uk/weather/{}".format(postcode))
-        data = res.get_data()
+        res = get("https://www.bbc.co.uk/weather/{}".format(postcode))
 
-        soup = BeautifulSoup(data, "html.parser")
+        soup = BeautifulSoup(res.text, "html.parser")
         element = soup.find_all("div", class_="environmental-index pollen-index")
 
         if element:

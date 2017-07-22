@@ -5,16 +5,15 @@ from twisted.words.protocols import irc
 from twisted.python import log
 import time
 import pkgutil
-import modules
+import dave.modules as modules
 import re
-import config
-import datetime
+import dave.config as config
 from twisted.internet import reactor
 from twisted.internet.threads import deferToThread
 
 
 class Dave(irc.IRCClient):
-    nickname = bytes(config.config["irc"]["nick"])
+    nickname = config.config["irc"]["nick"]
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
@@ -31,7 +30,7 @@ class Dave(irc.IRCClient):
         self.mode(self.nickname, True, "B")
 
         for channel in config.config["irc"]["channels"]:
-            self.join(bytes(channel))
+            self.join(channel)
 
         if config.config["irc"]["nickserv_password"]:
             self.msg("nickserv", "identify {}".format(config.config["irc"]["nickserv_password"]))
@@ -53,7 +52,7 @@ class Dave(irc.IRCClient):
         for importer, modname, ispkg in pkgutil.iter_modules(path, prefix):
             m = importer.find_module(modname).load_module(modname)
 
-            for name, val in m.__dict__.iteritems():
+            for name, val in m.__dict__.items():
                 if callable(val) and hasattr(val, "rule"):
                     priority = val.priority.value if hasattr(val, "priority") else 0
 
@@ -88,7 +87,7 @@ class Dave(irc.IRCClient):
             self.join(params[1])
 
     def reply(self, source, sender, msg):
-        self.msg(source, "{}: {}".format(sender, msg.encode("utf-8")))
+        self.msg(source, "{}: {}".format(sender, msg))
 
 
 def main():
@@ -98,5 +97,4 @@ def main():
     factory.protocol = Dave
     reactor.connectSSL(config.config["irc"]["host"], config.config["irc"]["port"],
                        factory, ssl.ClientContextFactory())
-    reactor.suggestThreadPoolSize(30)
     reactor.run()

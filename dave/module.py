@@ -2,8 +2,6 @@
 """Provide various decorators for dave modules."""
 import re
 from enum import Enum
-import socket
-import config
 
 
 def match(value):

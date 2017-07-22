@@ -5,7 +5,7 @@ import dave.modules
 import requests
 import dave.config
 import pickle
-from urllib import quote_plus
+from urllib.parse import quote_plus
 import arrow
 from dave.models import Location
 import socket

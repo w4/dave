@@ -3,7 +3,6 @@
 import dave.module
 import dave.config
 import wolframalpha
-import socket
 from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 
 
@@ -16,7 +15,7 @@ def wolfram(bot, args, sender, source):
     key = "wolfram:{}".format(query.lower())
 
     if dave.config.redis.exists(key):
-        bot.reply(source, sender, dave.config.redis.get(key))
+        bot.reply(source, sender, dave.config.redis.get(key).decode('utf-8'))
         dave.config.redis.setex(key, 60, dave.config.redis.get(key))
         return
 
@@ -24,17 +23,19 @@ def wolfram(bot, args, sender, source):
         client = wolframalpha.Client(dave.config.config["api_keys"]["wolfram"])
         res = client.query(query)
 
-        if len(res.pods) > 0:
-            resultpod = next(res.results)
-            result = resultpod.text.encode('utf-8')
+        pods = list(res.pods)
 
-            if "image" in res.pods[0].text:
+        if len(pods) > 0:
+            resultpod = next(res.results)
+            result = resultpod.text
+
+            if "image" in pods[0].text:
                 result = resultpod.img
 
             if len(result) > 500:
                 result = result[:497] + "..."
 
-            res = assembleFormattedText(A.normal[A.bold[str(res.pods[0].text.encode('utf-8'))],
+            res = assembleFormattedText(A.normal[A.bold[pods[0].text],
                                         ": {}".format(result)])
-            dave.config.redis.setex(key, 60, res.decode('utf-8'))
-            bot.reply(source, sender, res.decode('utf-8'))
+            dave.config.redis.setex(key, 60, res)
+            bot.reply(source, sender, res)

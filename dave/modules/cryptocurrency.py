@@ -49,12 +49,12 @@ def crypto(bot, args, sender, source):
         multiplier = decimal.Decimal(1)
 
     total_volume = sum(
-        float(market['volume']) for market in p[cryptoKey][currencyKey].itervalues()
+        float(market['volume']) for market in p[cryptoKey][currencyKey].values()
     )
 
     avg = sum(
         float(market['last']) * float(market['volume']) / total_volume
-            for market in p[cryptoKey][currencyKey].itervalues()
+            for market in p[cryptoKey][currencyKey].values()
     )
 
     prices = assembleFormattedText(A.normal[
@@ -65,16 +65,16 @@ def crypto(bot, args, sender, source):
                 market,
                 babel.numbers.format_currency(decimal.Decimal(data['last']) * multiplier,
                                               currency)
-            ).encode('utf-8') for market, data in p[cryptoKey][currencyKey].iteritems()
+            ) for market, data in p[cryptoKey][currencyKey].items()
         ])
     ])
 
     prices += u'. average: {}'.format(
         babel.numbers.format_currency(decimal.Decimal(avg) * multiplier,
                                       currency)
-    ).encode('utf-8')
+    )
 
-    bot.reply(source, sender, prices.decode('utf-8'))
+    bot.reply(source, sender, prices)
 
 def preev(cryptocurrency, currency):
     """Contact the preev api and get the latest prices and cache for 10 seconds"""
@@ -87,7 +87,10 @@ def preev(cryptocurrency, currency):
                 currency
             ))
 
-        json = r.json()
+        try:
+            json = r.json()
+        except:
+            return r.text
 
         dave.config.redis.setex(key, 10, pickle.dumps(json))
     else:

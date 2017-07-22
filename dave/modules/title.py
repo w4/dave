@@ -26,11 +26,11 @@ def link_parse(bot, args, sender, source):
             if title is not None:
                 title = re.sub(r"(\r?\n|\r| )+",
                                " ",
-                               title.string.encode("utf-8").strip())
+                               title.string.strip())
                 title = title[:140] + (title[140:] and '...')
                 dave.config.redis.setex("site:{}".format(match), 300, title)
         else:
-            title = dave.config.redis.get("site:{}".format(match))
+            title = dave.config.redis.get("site:{}".format(match)).decode('utf-8')
 
         if title is not None:
             titles.append(assembleFormattedText(A.bold[title]))

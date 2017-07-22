@@ -2,7 +2,6 @@ import pickle
 
 import dave.module
 import dave.config
-from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 from humanize import naturaltime
 from datetime import datetime
 
