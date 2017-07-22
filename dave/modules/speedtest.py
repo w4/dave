@@ -4,7 +4,6 @@ import dave.module
 from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 
 @dave.module.match(r'https?://(?:www\.|beta\.)?speedtest\.net/(?:my-)?result/([0-9]+)(?:.png)?')
-@dave.module.priority(dave.module.Priority.HIGHEST)
 @dave.module.dont_always_run_if_run()
 def speedtest(bot, args, sender, source):
     res = get("http://www.speedtest.net/result/{}".format(args[0]), timeout=3)
