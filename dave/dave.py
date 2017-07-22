@@ -10,7 +10,7 @@ import re
 import config
 import datetime
 from twisted.internet import reactor
-from twisted.internet.threads import deferToThreadPool
+from twisted.internet.threads import deferToThread
 
 
 class Dave(irc.IRCClient):
@@ -76,14 +76,12 @@ class Dave(irc.IRCClient):
 
         if method[1] is not None:
             # we matched a command
-            deferToThreadPool(reactor, reactor.getThreadPool(), method[1], self,
-                              method[2], nick, channel)
+            deferToThread(method[1], self, method[2], nick, channel)
 
             if not (hasattr(method[1], "dont_always_run") and method[1].dont_always_run):
                 for m in run:
                     # modules that should always be run regardless of priority
-                    deferToThreadPool(reactor, reactor.getThreadPool(), m[0], self,
-                                      m[1], nick, channel)
+                    deferToThread(m[0], self, m[1], nick, channel)
 
     def irc_unknown(self, prefix, command, params):
         if command == "INVITE":
@@ -100,4 +98,5 @@ def main():
     factory.protocol = Dave
     reactor.connectSSL(config.config["irc"]["host"], config.config["irc"]["port"],
                        factory, ssl.ClientContextFactory())
+    reactor.suggestThreadPoolSize(30)
     reactor.run()

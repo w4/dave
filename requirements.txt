@@ -14,6 +14,5 @@ psycopg2==2.6.1
 lxml==3.6.0
 pysocks==1.5.7
 wolframalpha==2.4
-nltk==3.2.1
-markovify==0.4.3
 babel==2.3.4
+humanize==0.5.1
