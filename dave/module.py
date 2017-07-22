@@ -85,7 +85,7 @@ def dont_always_run_if_run():
 
 
 def always_run():
-    """Decorate a function to always run it, even when over prioritied"""
+    """Decorate a function to always run it, even when over prioritised"""
     def add_attribute(function):
         function.always_run = True
         return function

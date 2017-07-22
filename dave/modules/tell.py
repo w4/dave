@@ -16,7 +16,6 @@ def tell(bot, args, sender, source):
 
 
 @dave.module.match(r"(.*)")
-@dave.module.priority(dave.module.Priority.HIGHEST)
 @dave.module.always_run()
 def check_msgs(bot, args, sender, source):
     msgs = dave.config.redis.lrange("tell:{}".format(sender.lower()), 0, -1)
