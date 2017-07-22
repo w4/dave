@@ -3,7 +3,7 @@
 import re
 import dave.module
 from bs4 import BeautifulSoup
-from mechanize import Browser
+from requests import get
 from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 import dave.config
 import socket
@@ -16,23 +16,20 @@ parse = re.compile(r"(?:(?:https?):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\
 def link_parse(bot, args, sender, source):
     matches = parse.findall(args[0])
 
-    br = Browser()
-    br.set_handle_robots(False)
-
     titles = []
 
     for match in matches:
         if not dave.config.redis.exists("site:{}".format(match)):
-            res = br.open(match)
-            data = res.get_data()
+            res = get(match, timeout=3)
 
-            soup = BeautifulSoup(data, "html.parser")
+            soup = BeautifulSoup(res.text, "html.parser")
             title = soup.title
 
             if title is not None:
-                title = re.sub(r"\r?\n|\r",
-                               "",
+                title = re.sub(r"(\r?\n|\r| )+",
+                               " ",
                                title.string.encode("utf-8").strip())
+                title = title[:140] + (title[140:] and '...')
                 dave.config.redis.setex("site:{}".format(match), 300, title)
         else:
             title = dave.config.redis.get("site:{}".format(match))
@@ -41,5 +38,8 @@ def link_parse(bot, args, sender, source):
             titles.append(assembleFormattedText(A.bold[title]))
 
     if titles:
-        bot.msg(source, "Linked: {}".format(
-                        assembleFormattedText(A.normal[" | "]).join(titles)))
+        # remove duplicates
+        titles = list(set(titles))
+
+        bot.msg(source, "Title: {}".format(
+                        assembleFormattedText(A.normal[", "]).join(titles)))
