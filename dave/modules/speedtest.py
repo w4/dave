@@ -1,3 +1,4 @@
+"""Read details from a speedtest test and print them to the channel."""
 from requests import get
 from bs4 import BeautifulSoup
 import dave.module
