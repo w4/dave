@@ -5,7 +5,6 @@ import dave.config
 from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 import re
 
-
 @dave.module.help("Syntax: s/find/replace/flags", "sed")
 @dave.module.match(r"^((s|y)(/|\||!)(.*?)(\3)(.*?)(\3)([gIi]+)?)$")
 @dave.module.priority(dave.module.Priority.HIGHEST)
@@ -20,11 +19,9 @@ def sed(bot, args, sender, source):
             f = f | re.IGNORECASE
 
         try:
-            replace = re.sub(args[3],
-                             assembleFormattedText(A.bold[args[5]]),
-                             msg,
-                             count=0 if 'g' in flags else 1,
-                             flags=f)
+            # bold replacements
+            replace = re.sub(args[3], "\x02{}\x0F".format(args[5]),
+                             msg, count=0 if 'g' in flags else 1, flags=f)
         except Exception as e:
             bot.reply(source, sender,
                       "There was a problem with your sed command: {}".format(str(e)))
@@ -37,9 +34,9 @@ def sed(bot, args, sender, source):
             return
 
 
-@dave.module.match(r"^(?!(?:s|y)([\x00-\x7F])(?:.*?)(?:\1)(?:.*?)(?:\1)(?:[gIi\d]+)?)(.*)$")
+@dave.module.match(r"(.*)")
 @dave.module.priority(dave.module.Priority.LOWEST)
 def update_cache(bot, args, sender, source):
     key = "msg:{}:{}".format(source, sender)
-    dave.config.redis.lpush(key, args[1])
+    dave.config.redis.lpush(key, args[0])
     dave.config.redis.ltrim(key, 0, 2)
