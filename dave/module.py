@@ -93,18 +93,6 @@ def always_run():
     return add_attribute
 
 
-def proxied():
-    """Decorate a function to always proxy data flowing from it."""
-    def proxifier(function):
-        def wrapper(*args, **kw):
-            output = function(*args, **kw)
-            return output
-
-        return wrapper
-
-    return proxifier
-
-
 class Priority(Enum):
     HIGHEST = -2
     HIGH = -1
