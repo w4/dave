@@ -2,7 +2,6 @@
 """Give the user back urbandictionary results."""
 import dave.module
 import dave.config
-import socket
 import requests
 import pickle
 import re

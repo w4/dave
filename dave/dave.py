@@ -77,9 +77,10 @@ class Dave(irc.IRCClient):
             # we matched a command
             method[1](self, method[2], nick, channel)
 
-        for m in run:
-            # modules that should always be run regardless of priority
-            m[0](self, m[1], nick, channel)
+            if not (hasattr(method[1], "dont_always_run") and method[1].dont_always_run):
+                for m in run:
+                    # modules that should always be run regardless of priority
+                    m[0](self, m[1], nick, channel)
 
     def irc_unknown(self, prefix, command, params):
         if command == "INVITE":

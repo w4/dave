@@ -75,6 +75,15 @@ def priority(priority):
     return add_attribute
 
 
+def dont_always_run_if_run():
+    """If this function is run, we shouldn't run the functions that should always run"""
+    def add_attribute(function):
+        function.dont_always_run = True
+        return function
+
+    return add_attribute
+
+
 def always_run():
     """Decorate a function to always run it, even when over prioritied"""
     def add_attribute(function):
