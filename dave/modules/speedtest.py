@@ -16,7 +16,7 @@ def speedtest(bot, args, sender, source):
     isp = soup.select(".share-data.share-isp p")[0].text
 
     bot.msg(source, assembleFormattedText(A.normal[
-        A.bold["{}: ".format(isp)],
+        A.bold[str(isp)], ": "
         "Download: ", A.bold[str(download)], " ",
         "Upload: ", A.bold[str(upload)], " ",
         "Ping: ", A.bold[str(ping)]
