@@ -36,7 +36,7 @@ def stock(bot, args, sender, source):
     name = quote["Name"]
 
     if price == 0 and change == 0:
-        """Company is dead."""
+        # Company is dead
         bot.reply(source, sender, assembleFormattedText(
             A.normal[A.bold[name], " is no longer trading."]
         ))
