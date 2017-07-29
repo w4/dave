@@ -36,8 +36,8 @@ def post(bot, args, sender, source):
             " by ", A.bold[resp["author"]],
             " (/r/{}) {} comments, {} points, posted {}".format(
                 resp["subreddit"],
-                resp["num_comments"],
-                resp["score"],
+                intcomma(resp["num_comments"]),
+                intcomma(resp["score"]),
                 naturaltime(datetime.utcnow().timestamp() - resp["created_utc"])
             ),
         ]
