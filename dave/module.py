@@ -2,6 +2,7 @@
 """Provide various decorators for dave modules."""
 import re
 from enum import Enum
+import dave.config as config
 
 
 def match(value):
