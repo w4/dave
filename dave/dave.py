@@ -90,11 +90,9 @@ class Dave(irc.IRCClient):
             if not (hasattr(method[1], "dont_always_run") and method[1].dont_always_run):
                 # if dont_always_run is set, the command the user sent doesn't
                 # want "always run" modules to run.
-                return
-
-            for m in run:
-                # modules that should always be run regardless of priority
-                deferToThread(m[0], self, m[1], nick, channel)
+                for m in run:
+                    # modules that should always be run regardless of priority
+                    deferToThread(m[0], self, m[1], nick, channel)
 
     def irc_unknown(self, prefix, command, params):
         if command == "INVITE":
