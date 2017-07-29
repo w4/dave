@@ -14,8 +14,6 @@ def seen(bot, args, sender, source):
 
     seen = pickle.loads(dave.config.redis.get("lastseen:{}".format(args[0].lower())))
 
-    print(seen)
-
     bot.reply(source, sender, "{} was last seen {} saying: {}".format(
         seen["name"],
         naturaltime(datetime.utcnow() - seen["when"]),

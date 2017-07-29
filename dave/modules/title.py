@@ -18,7 +18,8 @@ def link_parse(bot, args, sender, source):
 
     for match in matches:
         if not dave.config.redis.exists("site:{}".format(match)):
-            res = get(match, timeout=3)
+            res = get(match, timeout=3,
+                      headers={'user-agent': 'irc bot (https://github.com/w4)'})
 
             soup = BeautifulSoup(res.text, "html.parser")
             title = soup.title
