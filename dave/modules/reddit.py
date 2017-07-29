@@ -7,8 +7,8 @@ from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 from requests import get
 from humanize import naturaltime, naturaldelta, intcomma
 
-@dave.module.match(r'(?:https?://(?:www\.)?reddit.com)?(/r/(.+)/comments/([^\s]+))')
-@dave.module.match(r'https?://(?:www\.)?redd.it/([^\s]+)')
+@dave.module.match(r'.*(?:https?://(?:www\.)?reddit.com)?(/r/(.+)/comments/([^\s]+)).*')
+@dave.module.match(r'.*https?://(?:www\.)?redd.it/([^\s]+).*')
 @dave.module.dont_always_run_if_run()
 def post(bot, args, sender, source):
     """Ran whenever a reddit post is sent"""
@@ -43,7 +43,7 @@ def post(bot, args, sender, source):
         ]
     ))
 
-@dave.module.match(r'(?:https?://(?:www\.)?reddit.com)?/?r/(([^\s/]+))/?(?: |$)')
+@dave.module.match(r'.*(?:https?://(?:www\.)?reddit.com)?/?r/(([^\s/]+))/?(?: |$).*')
 @dave.module.dont_always_run_if_run()
 def subreddit(bot, args, sender, source):
     """Ran whenever a subreddit is mentioned"""
@@ -82,7 +82,7 @@ def subreddit(bot, args, sender, source):
     ))
 
 
-@dave.module.match(r'(?:https?://(?:www\.)?reddit.com)?/?(?:u|user)/(([^\s]+)/?)(?: |$)')
+@dave.module.match(r'.*(?:https?://(?:www\.)?reddit.com)?/?(?:u|user)/(([^\s]+)/?)(?: |$).*')
 @dave.module.dont_always_run_if_run()
 def user(bot, args, sender, source):
     if not dave.config.redis.exists("reddit:user:{}".format(args[0])):

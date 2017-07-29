@@ -11,7 +11,7 @@ import isodate
 BASE_URL = "https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet," \
            "statistics&key={}".format(dave.config.config["api_keys"]["youtube"])
 
-@dave.module.match(r'http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?')
+@dave.module.match(r'.*https?://(?:www\.)?youtu(?:be\.com/watch\?v=|\.be/)([\w\-\_]*)(&(amp;)?[\w\=]*)?.*')
 @dave.module.dont_always_run_if_run()
 def youtubevideo(bot, args, sender, source):
     """Ran whenever a YouTube video is sent"""
