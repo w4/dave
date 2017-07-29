@@ -7,7 +7,7 @@ import random
 from dave.models import Quote
 from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 
-@dave.module.help("Syntax: aq [quote] (-- attribute). Add a quote to the quote database.")
+@dave.module.help("Syntax: aq [quote] (-- attribute). Add a quote.")
 @dave.module.command(["aq", "addquote"], "(.*?)(?: (?:--|—) ?(.+?))?$")
 def add_quote(bot, args, sender, source):
     generated_uuid = str(uuid.uuid4())
@@ -15,11 +15,11 @@ def add_quote(bot, args, sender, source):
     dave.config.session.add(quote)
 
     bot.reply(source, sender, assembleFormattedText(
-        A.normal["Successfully added quote to database: ", A.bold[args[0]], " by ",
+        A.normal["Successfully added quote: ", A.bold[args[0]], " by ",
                  (args[1] or sender)]))
 
-    bot.msg(sender, "Added quote to database, you can remove this quote later using dq {}"
-            .format(generated_uuid))
+    bot.msg(sender, "You can remove this quote later using \"dave dq {}\"".format(
+        generated_uuid))
 
 @dave.module.help("Syntax: q. Return a random quote.")
 @dave.module.command(["q", "quote"])
@@ -38,7 +38,7 @@ def quote(bot, args, sender, source):
         A.bold[row.quote], " by ", (row.attributed or row.added_by)
     ]))
 
-@dave.module.help("Syntax: fq [search]. Search for a quote in the quote database.")
+@dave.module.help("Syntax: fq [search]. Search for a quote.")
 @dave.module.command(["fq", "findquote"], "(.*)$")
 def find_quote(bot, args, sender, source):
     try:
