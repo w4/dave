@@ -49,6 +49,10 @@ class Dave(irc.IRCClient):
         method = (99999, None)  # priority, method to run
         run = []  # methods which match the message which should be run regardless of priority
 
+        if channel == self.nickname:
+            # message was sent directly to the bot to respond directly back to the user
+            channel = nick
+
         for importer, modname, ispkg in pkgutil.iter_modules(path, prefix):
             m = importer.find_module(modname).load_module(modname)
 
@@ -60,7 +64,13 @@ class Dave(irc.IRCClient):
                         continue
 
                     for rule in val.rule:
-                        regex = r"^{}(?::|,|) (.*)$".format(self.nickname) if rule["named"] else r"^(.*)$"
+                        if channel == nick:
+                            # message was sent directly to the bot so make name optional
+                            regex = r"^(?:{}(?::|,|) )?(.*)$".format(self.nickname) \
+                                if rule["named"] else r"^(.*)$"
+                        else:
+                            regex = r"^{}(?::|,|) (.*)$".format(self.nickname) \
+                                if rule["named"] else r"^(.*)$"
 
                         match = re.match(regex, msg)
 
@@ -78,16 +88,24 @@ class Dave(irc.IRCClient):
             deferToThread(method[1], self, method[2], nick, channel)
 
             if not (hasattr(method[1], "dont_always_run") and method[1].dont_always_run):
-                for m in run:
-                    # modules that should always be run regardless of priority
-                    deferToThread(m[0], self, m[1], nick, channel)
+                # if dont_always_run is set, the command the user sent doesn't
+                # want "always run" modules to run.
+                return
+
+            for m in run:
+                # modules that should always be run regardless of priority
+                deferToThread(m[0], self, m[1], nick, channel)
 
     def irc_unknown(self, prefix, command, params):
         if command == "INVITE":
             self.join(params[1])
 
     def reply(self, source, sender, msg):
-        self.msg(source, "{}: {}".format(sender, msg))
+        if source == sender:
+            # responding directly back to the user so don't tag them
+            self.msg(source, msg)
+        else:
+            self.msg(source, "{}: {}".format(sender, msg))
 
 
 def main():

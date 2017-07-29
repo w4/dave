@@ -1,4 +1,5 @@
 """Quote system"""
+from sqlalchemy.exc import SQLAlchemyError
 import dave.module
 import dave.config
 import uuid
@@ -12,7 +13,6 @@ def add_quote(bot, args, sender, source):
     generated_uuid = str(uuid.uuid4())
     quote = Quote(id=generated_uuid, quote=args[0], attributed=args[1], added_by=sender)
     dave.config.session.add(quote)
-    dave.config.session.commit()
 
     bot.reply(source, sender, assembleFormattedText(
         A.normal["Successfully added quote to database: ", A.bold[args[0]], " by ",
@@ -41,10 +41,14 @@ def quote(bot, args, sender, source):
 @dave.module.help("Syntax: fq [search]. Search for a quote in the quote database.")
 @dave.module.command(["fq", "findquote"], "(.*)$")
 def find_quote(bot, args, sender, source):
-    quotes = dave.config.session.query(Quote).filter(
-        (Quote.quote.op("~")(args[0])) | (Quote.attributed.op("~")(args[0]))
-            | (Quote.added_by.op("~")(args[0]))
-    ).all()
+    try:
+        quotes = dave.config.session.query(Quote).filter(
+            (Quote.quote.op("~")(args[0])) | (Quote.attributed.op("~")(args[0]))
+                | (Quote.added_by.op("~")(args[0]))
+        ).all()
+    except SQLAlchemyError as e:
+        bot.reply(source, sender, SQLAlchemyError.__str__(e))
+        return
 
     if len(quotes) == 0:
         bot.reply(source, sender, "No results for query.")
@@ -62,6 +66,11 @@ def find_quote(bot, args, sender, source):
 @dave.module.help("Syntax: dq [uuid]. Allow the quote owner to delete a quote.")
 @dave.module.command(["dq", "deletequote"], "(.*)$")
 def delete_quote(bot, args, sender, source):
-    dave.config.session.query(Quote).filter(Quote.id == args[0]).delete()
-    dave.config.session.commit()
+    query = dave.config.session.query(Quote).filter(Quote.id == args[0])
+
+    if not query.count():
+        bot.reply(source, sender, "Couldn't find a quote with that UUID.")
+        return
+
+    query.delete()
     bot.reply(source, sender, "Successfully deleted quote.")

@@ -16,5 +16,5 @@ redis = redis.StrictRedis(host=config["redis"]["host"], port=config["redis"]["po
 
 # connect to the database
 db = create_engine(config["database"])
-Session = sessionmaker(bind=db)
+Session = sessionmaker(bind=db, autocommit=True)
 session = Session()

@@ -33,8 +33,6 @@ def weather(bot, args, sender, source):
             db_location = Location(nick=sender, location=location)
             dave.config.session.add(db_location)
 
-        dave.config.session.commit()
-
     geocode = get_location(location)
 
     if not geocode or not geocode["results"]:
