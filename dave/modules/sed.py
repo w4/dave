@@ -28,7 +28,7 @@ def sed(bot, args, sender, source):
                       "There was a problem with your sed command: {}".format(str(e)))
             return
 
-        if toDisplay.strip() != msg:
+        if toSave.strip() != msg:
             bot.msg(source, "<{}> {}".format(sender, toDisplay.strip()))
             dave.config.redis.lset(key, i, toSave.strip())
             return
