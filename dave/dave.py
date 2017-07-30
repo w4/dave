@@ -3,8 +3,9 @@ import sys
 from datetime import datetime
 
 from humanize import naturaltime
-from twisted.internet import reactor, protocol, ssl
+from twisted.internet import reactor, protocol, ssl, task
 from twisted.words.protocols import irc
+from twisted.internet.threads import deferToThread
 from twisted.python import log
 import time
 import pkgutil
@@ -13,8 +14,6 @@ import re
 import subprocess
 import dave.config as config
 import requests
-from twisted.internet import reactor, task
-from twisted.internet.threads import deferToThread
 
 
 class Dave(irc.IRCClient):
@@ -106,10 +105,10 @@ class Dave(irc.IRCClient):
         if command == "INVITE":
             self.join(params[1])
 
-    def msg(self, user, message, length=None):
+    def msg(self, dest, message, length=None):
         """Override msg() to log what the bot says"""
         log.msg("<{}> {}".format(self.nickname, message))
-        super(Dave, self).msg(user, message, length)
+        reactor.callFromThread(super(Dave, self).msg, dest, message, length)
 
     def reply(self, source, sender, msg):
         if source == sender:
