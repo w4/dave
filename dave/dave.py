@@ -105,6 +105,11 @@ class Dave(irc.IRCClient):
         if command == "INVITE":
             self.join(params[1])
 
+    def msg(self, user, message, length=None):
+        """Override msg() to log what the bot says"""
+        log.msg("<{}> {}".format(self.nickname, message))
+        super(Dave, self).msg(user, message, length)
+
     def reply(self, source, sender, msg):
         if source == sender:
             # responding directly back to the user so don't tag them
