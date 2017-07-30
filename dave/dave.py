@@ -12,6 +12,7 @@ import dave.modules as modules
 import re
 import subprocess
 import dave.config as config
+import requests
 from twisted.internet import reactor, task
 from twisted.internet.threads import deferToThread
 
@@ -129,13 +130,27 @@ def autopull():
         output = subprocess.check_output(args).split(b",")
         log.msg("Pulled latest commit.")
 
-        msg = "{} ({}) authored by {} ({}) {}".format(
+        # get a shortened git commit url
+        try:
+            r = requests.post('https://git.io/', {
+                "url": "https://github.com/{}/commit/{}".format(
+                    config.config["repo"],
+                    str(output[0], 'utf-8')
+                )
+            }, allow_redirects=False, timeout=3)
+
+            commit = r.headers['Location']
+        except:
+            commit = ""
+
+        msg = "{} ({}) authored by {} ({}) {} {}".format(
             str(output[1], 'utf-8'),
             str(output[0], 'utf-8'),
             str(output[3], 'utf-8'),
             str(output[4], 'utf-8'),
             naturaltime(datetime.utcnow().timestamp() -
-                        float(output[2]))
+                        float(output[2])),
+            commit
         )
 
         log.msg("Updated, {}".format(msg))
