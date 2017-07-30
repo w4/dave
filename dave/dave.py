@@ -22,6 +22,15 @@ class Dave(irc.IRCClient):
     def __init__(self):
         Dave.instance = self
 
+    def lineReceived(self, line):
+        """Override lineReceived to ignore invalid characters so non-utf8 messages
+        don't crash the bot"""
+        if isinstance(line, bytes):
+            # decode bytes from transport to unicode
+            line = line.decode("utf-8", errors="ignore")
+
+        super(Dave, self).lineReceived(line)
+
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
         log.msg("Connected to server at {} with name {}".format(
