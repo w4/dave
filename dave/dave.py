@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import sys
+from datetime import datetime
+
+from humanize import naturaltime
 from twisted.internet import reactor, protocol, ssl
 from twisted.words.protocols import irc
 from twisted.python import log
@@ -7,13 +10,17 @@ import time
 import pkgutil
 import dave.modules as modules
 import re
+import subprocess
 import dave.config as config
-from twisted.internet import reactor
+from twisted.internet import reactor, task
 from twisted.internet.threads import deferToThread
 
 
 class Dave(irc.IRCClient):
     nickname = config.config["irc"]["nick"]
+
+    def __init__(self):
+        Dave.instance = self
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
@@ -105,12 +112,42 @@ class Dave(irc.IRCClient):
         else:
             self.msg(source, "{}: {}".format(sender, msg))
 
+def autopull():
+    log.msg("Pulling latest code from git.")
+    output = subprocess.check_output(["git", "pull"])
+
+    if not "Already up-to-date" in str(output):
+        # check latest commit message
+        args = ["git", "log", "-1", "--pretty=format:{}".format(",".join([
+            "%h", "%s", "%at", "%an", "%ae"
+        ]))]
+        output = subprocess.check_output(args).split(b",")
+        log.msg("Pulled latest commit.")
+
+        msg = "{} ({}) authored by {} ({}) {}".format(
+            str(output[1], 'utf-8'),
+            str(output[0], 'utf-8'),
+            str(output[3], 'utf-8'),
+            str(output[4], 'utf-8'),
+            naturaltime(datetime.utcnow().timestamp() -
+                        float(output[2]))
+        )
+
+        log.msg("Updated, {}".format(msg))
+
+        if hasattr(Dave, "instance"):
+            for channel in config.config["irc"]["channels"]:
+                Dave.instance.msg(channel, msg)
+    else:
+        log.msg("Already up to date.")
 
 def main():
     log.startLogging(sys.stdout)
 
-    factory = protocol.ReconnectingClientFactory()
-    factory.protocol = Dave
+    # pull from github every 2 minutes
+    task.LoopingCall(lambda: deferToThread(autopull)).start(120.0)
+
+    factory = protocol.ReconnectingClientFactory.forProtocol(Dave)
     reactor.connectSSL(config.config["irc"]["host"], config.config["irc"]["port"],
                        factory, ssl.ClientContextFactory())
     reactor.run()
