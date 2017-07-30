@@ -1,6 +1,6 @@
 from __future__ import with_statement
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import pool
 from logging.config import fileConfig
 import os
 import sys
@@ -9,7 +9,7 @@ basepath = os.path.dirname(__file__)
 parent_dir = os.path.abspath(os.path.join(basepath, ".."))
 sys.path.append(parent_dir)
 
-from dave.config import config as dave_config
+from dave.config import db, config as dave_config
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -58,10 +58,7 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix='sqlalchemy.',
-        poolclass=pool.NullPool)
+    connectable = db
 
     with connectable.connect() as connection:
         context.configure(
