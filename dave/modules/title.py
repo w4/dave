@@ -21,17 +21,22 @@ def link_parse(bot, args, sender, source):
             res = get(match, timeout=3,
                       headers={'user-agent': 'irc bot (https://github.com/w4)'})
 
+            # sometimes requests guesses the charset wrong
+            if res.encoding == 'ISO-8859-1' and not 'ISO-8859-1' in \
+                    res.headers.get('Content-Type', ''):
+                res.encoding = res.apparent_encoding
+
             soup = BeautifulSoup(res.text, "html.parser")
-            title = soup.title
+            title = soup.title.string
 
             if title is not None:
                 title = re.sub(r"(\r?\n|\r| )+",
                                " ",
-                               title.string.strip())
+                               title.strip())
                 title = title[:140] + (title[140:] and '...')
                 dave.config.redis.setex("site:{}".format(match), 300, title)
         else:
-            title = dave.config.redis.get("site:{}".format(match)).decode('utf-8')
+            title = str(dave.config.redis.get("site:{}".format(match)), 'utf8')
 
         if title is not None:
             titles.append(assembleFormattedText(A.bold[title]))
