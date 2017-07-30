@@ -43,7 +43,7 @@ def urbandictionary(bot, args, sender, source):
         if len(definition) > 200:
             definition = definition[:197] + "..."
 
-        definition = assembleFormattedText(A.normal[A.bold[str(res["word"])], ": {} [by {}, 👍 {} 👎 {}] [more at {}]".format(
+        definition = assembleFormattedText(A.normal[A.bold[str(res["word"])], ": {} [by {}, +{}/-{}] [more at {}]".format(
             definition,
             res["author"],
             res["thumbs_up"],

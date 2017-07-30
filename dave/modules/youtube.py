@@ -39,7 +39,7 @@ def youtubevideo(bot, args, sender, source):
     bot.msg(source, assembleFormattedText(
         A.normal[
             A.bold[resp["snippet"]["title"]],
-            " ({}) by {} uploaded {}. {} views, 👍 {} 👎 {}.".format(
+            " ({}) by {} uploaded {}. {} views, +{}/-{}.".format(
                 str(isodate.parse_duration(resp["contentDetails"]["duration"])),
                 resp["snippet"]["channelTitle"],
                 naturaltime(
