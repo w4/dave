@@ -147,10 +147,10 @@ def autopull():
 
     if not "Already up-to-date" in str(output):
         # check latest commit message
-        args = ["git", "log", "-1", "--pretty=format:{}".format(",".join([
+        args = ["git", "log", "-1", "--pretty=format:{}".format("|||".join([
             "%h", "%s", "%at", "%an", "%ae"
         ]))]
-        output = subprocess.check_output(args).split(b",")
+        output = subprocess.check_output(args).split(b"|||")
         log.msg("Pulled latest commit.")
 
         # get a shortened git commit url
