@@ -9,6 +9,7 @@ from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 
 @dave.module.help("Syntax: aq [quote] (-- attribute). Add a quote.")
 @dave.module.command(["aq", "addquote"], "(.*?)(?: (?:--|—) ?(.+?))?$")
+@dave.module.ratelimit(1, 2)
 def add_quote(bot, args, sender, source):
     generated_uuid = str(uuid.uuid4())
     quote = Quote(id=generated_uuid, quote=args[0], attributed=args[1], added_by=sender)
@@ -23,6 +24,7 @@ def add_quote(bot, args, sender, source):
 
 @dave.module.help("Syntax: q. Return a random quote.")
 @dave.module.command(["q", "quote"])
+@dave.module.ratelimit(1, 1)
 def quote(bot, args, sender, source):
     query = dave.config.session.query(Quote)
 
@@ -40,6 +42,7 @@ def quote(bot, args, sender, source):
 
 @dave.module.help("Syntax: fq [search]. Search for a quote.")
 @dave.module.command(["fq", "findquote"], "(.*)$")
+@dave.module.ratelimit(1, 3)
 def find_quote(bot, args, sender, source):
     try:
         quotes = dave.config.session.query(Quote).filter(
@@ -65,6 +68,7 @@ def find_quote(bot, args, sender, source):
 
 @dave.module.help("Syntax: dq [uuid]. Allow the quote owner to delete a quote.")
 @dave.module.command(["dq", "deletequote"], "(.*)$")
+@dave.module.ratelimit(1, 1)
 def delete_quote(bot, args, sender, source):
     query = dave.config.session.query(Quote).filter(Quote.id == args[0])
 
