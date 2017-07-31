@@ -44,7 +44,7 @@ def post(bot, args, sender, source):
         ]
     ))
 
-@dave.module.match(r'.*(?:^| )(?:https?://(?:www\.)?reddit.com)?/?r/(([^\s/]+))/?(?: |$).*')
+@dave.module.match(r'.*(?:^| )(?:https?://(?:www\.)?reddit.com)?/r/(([^\s/]+))/?(?: |$).*')
 @dave.module.ratelimit(1, 1)
 @dave.module.dont_always_run_if_run()
 def subreddit(bot, args, sender, source):
@@ -84,7 +84,7 @@ def subreddit(bot, args, sender, source):
     ))
 
 
-@dave.module.match(r'.*(?:^| )(?:https?://(?:www\.)?reddit.com)?/?(?:u|user)/(([^\s]+)/?)(?: |$).*')
+@dave.module.match(r'.*(?:^| )(?:https?://(?:www\.)?reddit.com)?/(?:u|user)/(([^\s]+)/?)(?: |$).*')
 @dave.module.ratelimit(1, 1)
 @dave.module.dont_always_run_if_run()
 def user(bot, args, sender, source):
