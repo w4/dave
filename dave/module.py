@@ -5,6 +5,22 @@ from enum import Enum
 import dave.config as config
 
 
+def ratelimit(value, per):
+    """Decorate a function to be ratelimited by the command processor
+
+    Args:
+        value: accepted amount of requests per "per" seconds
+        per: amount of seconds before the ratelimit should be cleared
+    """
+    def add_attribute(function):
+        function.ratelimit = {
+            "value": value,
+            "per": per
+        }
+        return function
+
+    return add_attribute
+
 def match(value):
     """Decorate a function to be called whenever a message matches the given pattern.
 

@@ -12,6 +12,7 @@ from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 @dave.module.help("Get results for an urbandictionary query. Syntax: urban [result #] (query)")
 @dave.module.command(["urbandictionary", "ub", "urban"], "(\d+ )?([a-zA-Z0-9 ]+)$")
 @dave.module.priority(dave.module.Priority.HIGHEST)
+@dave.module.ratelimit(1, 1)
 def urbandictionary(bot, args, sender, source):
     result = int(args[0].strip()) - 1 if args[0] else 0
     query = args[1].strip().lower()

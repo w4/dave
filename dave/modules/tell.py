@@ -7,6 +7,7 @@ import pickle
 @dave.module.help("Syntax: tell [user] [message]. Tell a user something when we next "
                   "see them")
 @dave.module.command(["tell"], "([A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]*) (.*)")
+@dave.module.ratelimit(1, 3)
 def tell(bot, args, sender, source):
     dave.config.redis.lpush("tell:{}".format(args[0].lower()), pickle.dumps({
         "sender": sender,

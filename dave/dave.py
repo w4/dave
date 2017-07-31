@@ -14,6 +14,7 @@ import re
 import subprocess
 import dave.config as config
 import requests
+from dave.ratelimit import ratelimit
 
 
 class Dave(irc.IRCClient):
@@ -57,7 +58,8 @@ class Dave(irc.IRCClient):
     def privmsg(self, user, channel, msg):
         """This will get called when the bot receives a message."""
         nick = user.split("!", 1)[0]
-        log.msg("<{}> {}".format(nick, msg))
+        userhost = user.split("!", 1)[1]
+        log.msg("<{}> {}".format(user, msg))
 
         path = modules.__path__
         prefix = "{}.".format(modules.__name__)
@@ -97,16 +99,29 @@ class Dave(irc.IRCClient):
                                 if hasattr(val, "always_run"):
                                     run.append((val, match.groups()))
                                 else:
-                                    method = (priority, val, match.groups())
+                                    method = (priority, val, match.groups(),
+                                              rule["named"])
+
+        ignore_dont_always_run = False
 
         if method[1] is not None:
             # we matched a command
-            deferToThread(method[1], self, method[2], nick, channel)
+            if ratelimit(method[1], userhost):
+                # ratelimit returned true, we can run our function!
+                deferToThread(method[1], self, method[2], nick, channel)
+            elif method[3]:
+                # if this was a direct command to the bot, tell them they've been r/l'd
+                self.reply(channel, nick, "You have been ratelimited for this command.")
+            else:
+                # if it wasn't, let the always_run functions run.
+                ignore_dont_always_run = True
 
-            if not (hasattr(method[1], "dont_always_run") and method[1].dont_always_run):
-                # if dont_always_run is set, the command the user sent doesn't
-                # want "always run" modules to run.
-                for m in run:
+        if method[1] is None or ignore_dont_always_run or \
+                not (hasattr(method[1], "dont_always_run") and method[1].dont_always_run):
+            # if dont_always_run is set, the command the user sent doesn't
+            # want "always run" modules to run.
+            for m in run:
+                if not hasattr(m[0], "ratelimit") or ratelimit(m[0], userhost):
                     # modules that should always be run regardless of priority
                     deferToThread(m[0], self, m[1], nick, channel)
 

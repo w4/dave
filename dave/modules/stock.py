@@ -9,6 +9,7 @@ from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 
 
 @dave.module.help("Syntax: stock [symbol].")
+@dave.module.ratelimit(1, 1)
 @dave.module.command(["stock"], "([a-zA-Z.]+)")
 def stock(bot, args, sender, source):
     try:

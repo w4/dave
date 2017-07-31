@@ -14,6 +14,7 @@ import socket
 @dave.module.help("Syntax: weather [location]. Get the forecast in the specified location.")
 @dave.module.command(["weather"], "?( .*)?$")
 @dave.module.priority(dave.module.Priority.HIGHEST)
+@dave.module.ratelimit(1, 5)
 def weather(bot, args, sender, source):
     location = args[0]
 

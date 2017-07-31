@@ -9,6 +9,7 @@ from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 @dave.module.help("Query the Wolfram API and return the result back to the user.")
 @dave.module.command(["wolfram", "w", "wolframalpha", "wa"], "(.+)$")
 @dave.module.priority(dave.module.Priority.HIGHEST)
+@dave.module.ratelimit(1, 3)
 def wolfram(bot, args, sender, source):
     query = args[0].strip()
 

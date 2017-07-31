@@ -10,6 +10,7 @@ import dave.config
 @dave.module.help("Syntax: pollen [first part of postcode]. Get the forecast in the specified location. Only works for UK postcodes.")
 @dave.module.command(["pollen"], "(([gG][iI][rR] {0,}0[aA]{2})|((([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y]?[0-9][0-9]?)|(([a-pr-uwyzA-PR-UWYZ][0-9][a-hjkstuwA-HJKSTUW])|([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y][0-9][abehmnprv-yABEHMNPRV-Y])))))$")
 @dave.module.priority(dave.module.Priority.HIGHEST)
+@dave.module.ratelimit(1, 1)
 def pollen(bot, args, sender, source):
     postcode = args[0].lower()
 

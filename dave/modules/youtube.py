@@ -13,6 +13,7 @@ BASE_URL = "https://www.googleapis.com/youtube/v3/videos?part=contentDetails,sni
 
 @dave.module.match(r'.*https?://(?:www\.)?youtu(?:be\.com/watch\?v=|\.be/)([\w\-\_]*)(&(amp;)?[\w\=]*)?.*')
 @dave.module.dont_always_run_if_run()
+@dave.module.ratelimit(1, 1)
 def youtubevideo(bot, args, sender, source):
     """Ran whenever a YouTube video is sent"""
     if not dave.config.redis.exists("youtube:{}".format(args[0])):

@@ -12,6 +12,7 @@ parse = re.compile(r"(?:(?:https?):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\
 
 @dave.module.match(r"(.*)")
 @dave.module.always_run()
+@dave.module.ratelimit(2, 2)
 def link_parse(bot, args, sender, source):
     matches = parse.findall(args[0])
 
