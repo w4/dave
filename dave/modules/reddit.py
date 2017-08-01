@@ -23,7 +23,6 @@ def post(bot, args, sender, source):
                   headers={'user-agent': 'irc bot (https://github.com/w4)'})
 
         if req.status_code != 200:
-            bot.msg(source, responsestatus(req.status_code, "That post"))
             return
 
         req = req.json()
@@ -56,8 +55,7 @@ def post(bot, args, sender, source):
 @dave.module.dont_always_run_if_run()
 def subreddit(bot, args, sender, source):
     """Ran whenever a subreddit is mentioned"""
-    if dave.config.redis.exists("reddit:subreddit:mentioned:{}:{}".format(args[0],
-                                                                          source)):
+    if dave.config.redis.exists("reddit:subreddit:mentioned:{}:{}".format(args[0], source)):
         # if this subreddit was mentioned in the last x seconds (see the setex below),
         # don't spam info about it
         return
@@ -67,11 +65,11 @@ def subreddit(bot, args, sender, source):
                   headers={'user-agent': 'irc bot (https://github.com/w4)'})
 
         if req.status_code != 200:
-            bot.msg(source, responsestatus(req.status_code, args[0]))
             return
 
         if "/search.json" in req.url:
-            bot.msg(source, responsestatus(404, args[0]))
+            # 404'd, reddit redirected us to the search page because they couldn't find
+            # the user.
             return
 
         req = req.json()
@@ -115,7 +113,6 @@ def user(bot, args, sender, source):
                   headers={'user-agent': 'irc bot (https://github.com/w4)'})
 
         if req.status_code != 200:
-            bot.msg(source, responsestatus(req.status_code, args[0]))
             return
 
         req = req.json()
@@ -142,13 +139,3 @@ def user(bot, args, sender, source):
             " Reddit employee." if resp["is_employee"] else ""
         ]
     ))
-
-def responsestatus(status, item):
-    if status == 404:
-        return "{} does not exist.".format(item)
-    elif status == 403:
-        return "{} is private.".format(item)
-    elif status == 429:
-        return "Rate-limited by reddit. Please try again in a few minutes."
-    else:
-        return "Reddit returned an error, response: {}".format(status)
