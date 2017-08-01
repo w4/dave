@@ -44,6 +44,7 @@ class Dave(irc.IRCClient):
 
     def signedOn(self):
         """Called when bot has succesfully signed on to server."""
+        # let everyone know i'm a bot by setting +B on myself
         self.mode(self.nickname, True, "B")
 
         for channel in config.config["irc"]["channels"]:
@@ -57,69 +58,102 @@ class Dave(irc.IRCClient):
 
     def privmsg(self, user, channel, msg):
         """This will get called when the bot receives a message."""
-        nick = user.split("!", 1)[0]
-        userhost = user.split("!", 1)[1]
+        nick, userhost = user.split("!", 1)
+
         log.msg("<{}> {}".format(user, msg))
 
+        # get the absolute path to our modules directory
         path = modules.__path__
+
+        # prefix for names iter_modules outputs so we can import it easily
         prefix = "{}.".format(modules.__name__)
 
-        method = (99999, None)  # priority, method to run
+        method = (99999, None)  # priority, command to run
         run = []  # methods which match the message which should be run regardless of priority
 
         if channel == self.nickname:
             # message was sent directly to the bot to respond directly back to the user
             channel = nick
 
+        # match messages in the format of "username: command"
+        match = re.match(r"^(?:{}[:,]? ){}(.*)$".format(
+            self.nickname,
+            # make the bot name optional if the command was sent via pm to the bot
+            "?" if channel == nick else ""
+        ), msg)
+
+        # true if this message invokes the bot directly
+        invoked = bool(match)
+
+        # use the parsed message if the bot was invoked directly or just use the raw msg
+        msg = match.group(1) if invoked else msg
+
+        # loop over all of our modules
         for importer, modname, ispkg in pkgutil.iter_modules(path, prefix):
+            # import the module - we should probably optimise this as at the moment
+            # every module is loaded every time a message is sent
             m = importer.find_module(modname).load_module(modname)
 
+            # loop over the attributes of this module
             for name, val in m.__dict__.items():
-                if callable(val) and hasattr(val, "rule"):
-                    priority = val.priority.value if hasattr(val, "priority") else 0
+                if not callable(val) or not hasattr(val, "rule"):
+                    # only loop over functions that have been decorated by command/match
+                    continue
 
-                    if method[0] < priority and not hasattr(val, "always_run"):
+                # get the priority of this method or default to 0. priorities are
+                # lower = higher priority
+                priority = val.priority.value if hasattr(val, "priority") else 0
+
+                if method[0] < priority and not hasattr(val, "always_run"):
+                    # we already know about a command with higher priority. skip this one.
+                    continue
+
+                # commands can match multiple commands or rules, loop over each one
+                # and see if it matches
+                for rule in val.rule:
+                    if rule["named"] and not invoked:
+                        # this rule wanted to be invoked by name but this message
+                        # doesn't invoke the bot directly so lets ignore this message.
                         continue
 
-                    for rule in val.rule:
-                        if channel == nick:
-                            # message was sent directly to the bot so make name optional
-                            regex = r"^(?:{}(?::|,|) )?(.*)$".format(self.nickname) \
-                                if rule["named"] else r"^(.*)$"
+                    match = re.match(rule["pattern"], msg)
+
+                    if match:
+                        # if this method should always run regardless of priority, add it
+                        # to the list of things to execute later. if not, update our
+                        # method tuple with our newest high priority command.
+                        if hasattr(val, "always_run"):
+                            run.append((val, match.groups()))
                         else:
-                            regex = r"^{}(?::|,|) (.*)$".format(self.nickname) \
-                                if rule["named"] else r"^(.*)$"
+                            method = (priority, val, match.groups(), rule["named"])
 
-                        match = re.match(regex, msg)
+                        # we've matched a rule for this command already, no need to
+                        # keep going.
+                        break
 
-                        if match:
-                            match = re.match(rule["pattern"], match.group(1))
-
-                            if match:
-                                if hasattr(val, "always_run"):
-                                    run.append((val, match.groups()))
-                                else:
-                                    method = (priority, val, match.groups(),
-                                              rule["named"])
-
+        # if this is true then if the dont_always_run flag is set on our command we're
+        # about to execute, ignore it and run anyway. currently, this is only used when
+        # the user is ratelimited for the command they tried to execute
         ignore_dont_always_run = False
 
         if method[1] is not None:
             # we matched a command
             if ratelimit(method[1], userhost):
-                # ratelimit returned true, we can run our function!
+                # not ratelimited, we can run our function!
                 deferToThread(method[1], self, method[2], nick, channel)
             elif method[3]:
                 # if this was a direct command to the bot, tell them they've been r/l'd
                 self.reply(channel, nick, "You have been ratelimited for this command.")
             else:
-                # if it wasn't, let the always_run functions run.
+                # if it wasn't, let the always_run functions run. since it wasn't a direct
+                # invoke, we don't need to alert the user about being r/l'd
                 ignore_dont_always_run = True
 
+        # we always want this method to run if a command wasn't matched, if the user was
+        # ratelimited or if command doesn't have the dont_always_run flag set.
         if method[1] is None or ignore_dont_always_run or \
                 not (hasattr(method[1], "dont_always_run") and method[1].dont_always_run):
-            # if dont_always_run is set, the command the user sent doesn't
-            # want "always run" modules to run.
+            # loop over every always_run method that we matched and execute it
             for m in run:
                 if not hasattr(m[0], "ratelimit") or ratelimit(m[0], userhost):
                     # modules that should always be run regardless of priority
@@ -127,10 +161,11 @@ class Dave(irc.IRCClient):
 
     def irc_unknown(self, prefix, command, params):
         if command == "INVITE":
+            # join any channels we are invited to
             self.join(params[1])
 
     def msg(self, dest, message, length=None):
-        """Override msg() to log what the bot says"""
+        """Override msg() to log what the bot says and to make msg thread safe."""
         log.msg("<{}> {}".format(self.nickname, message))
         reactor.callFromThread(super(Dave, self).msg, dest, message, length)
 
