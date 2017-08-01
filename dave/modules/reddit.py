@@ -13,6 +13,11 @@ from humanize import naturaltime, naturaldelta, intcomma
 @dave.module.dont_always_run_if_run()
 def post(bot, args, sender, source):
     """Ran whenever a reddit post is sent"""
+    if dave.config.redis.exists("reddit:post:mentioned:{}:{}".format(args[0], source)):
+        # if this post was mentioned in the last x seconds (see the setex below),
+        # don't spam info about it
+        return
+
     if not dave.config.redis.exists("reddit:post:{}".format(args[0])):
         req = get("https://reddit.com/{}.json?limit=1".format(args[0]),
                   headers={'user-agent': 'irc bot (https://github.com/w4)'})
@@ -29,6 +34,8 @@ def post(bot, args, sender, source):
         req = pickle.loads(dave.config.redis.get("reddit:post:{}".format(args[0])))
 
     resp = req[0]["data"]["children"][0]["data"]
+
+    dave.config.redis.setex("reddit:post:mentioned:{}:{}".format(args[0], source), 300, 1)
 
     bot.msg(source, assembleFormattedText(
         A.normal[
@@ -49,6 +56,12 @@ def post(bot, args, sender, source):
 @dave.module.dont_always_run_if_run()
 def subreddit(bot, args, sender, source):
     """Ran whenever a subreddit is mentioned"""
+    if dave.config.redis.exists("reddit:subreddit:mentioned:{}:{}".format(args[0],
+                                                                          source)):
+        # if this subreddit was mentioned in the last x seconds (see the setex below),
+        # don't spam info about it
+        return
+
     if not dave.config.redis.exists("reddit:subreddit:{}".format(args[0])):
         req = get("https://reddit.com/r/{}/about.json".format(args[0]),
                   headers={'user-agent': 'irc bot (https://github.com/w4)'})
@@ -70,6 +83,10 @@ def subreddit(bot, args, sender, source):
 
     resp = req["data"]
 
+    # don't give info about this user again in this channel for 300 seconds
+    dave.config.redis.setex("reddit:subreddit:mentioned:{}:{}".format(args[0], source),
+                            300, 1)
+
     bot.msg(source, assembleFormattedText(
         A.normal[
             A.bold[A.fg.lightRed["[NSFW] "]] if resp["over18"] else "",
@@ -88,6 +105,11 @@ def subreddit(bot, args, sender, source):
 @dave.module.ratelimit(1, 1)
 @dave.module.dont_always_run_if_run()
 def user(bot, args, sender, source):
+    if dave.config.redis.exists("reddit:user:mentioned:{}:{}".format(args[0], source)):
+        # if this user was mentioned in the last x seconds (see the setex below), don't
+        # spam info about them
+        return
+
     if not dave.config.redis.exists("reddit:user:{}".format(args[0])):
         req = get("https://reddit.com/u/{}/about.json".format(args[0]),
                   headers={'user-agent': 'irc bot (https://github.com/w4)'})
@@ -104,6 +126,9 @@ def user(bot, args, sender, source):
         req = pickle.loads(dave.config.redis.get("reddit:user:{}".format(args[0])))
 
     resp = req["data"]
+
+    # don't give info about this user again in this channel for 300 seconds
+    dave.config.redis.setex("reddit:user:mentioned:{}:{}".format(args[0], source), 300, 1)
 
     bot.msg(source, assembleFormattedText(
         A.normal[
