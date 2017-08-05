@@ -3,6 +3,7 @@
 import dave.module
 import dave.config
 import re
+from twisted.python import log
 
 @dave.module.help("Syntax: s/find/replace/flags", "sed")
 @dave.module.match(r"^((s|y)(/|\||!)(.*?)(\3)(.*?)(\3)([gIi]+)?)$")
@@ -11,6 +12,12 @@ def sed(bot, args, sender, source):
     key = "msg:{}:{}".format(source, sender)
 
     for i, msg in enumerate(dave.config.redis.lrange(key, 0, -1)):
+        try:
+            msg = msg.decode('utf-8')
+        except Exception as e:
+            log.err(e, "Failed decoding previous messages from redis.")
+            continue
+
         flags = list(args[7]) if args[7] else []
         f = re.UNICODE
 
@@ -19,16 +26,16 @@ def sed(bot, args, sender, source):
 
         try:
             # bold replacements
-            toDisplay = re.sub(args[3], "\x02{}\x0F".format(args[5]),
-                             msg.decode('utf-8'), count=0 if 'g' in flags else 1, flags=f)
-            toSave = re.sub(args[3], args[5],
-                            msg.decode('utf-8'), count=0 if 'g' in flags else 1, flags=f)
+            toDisplay = re.sub(args[3], "\x02{}\x0F".format(args[5]), msg,
+                             count=0 if 'g' in flags else 1, flags=f)
+            toSave = re.sub(args[3], args[5], msg,
+                            count=0 if 'g' in flags else 1, flags=f)
         except Exception as e:
             bot.reply(source, sender,
                       "There was a problem with your sed command: {}".format(str(e)))
             return
 
-        if toSave.strip() != msg:
+        if toSave != msg:
             bot.msg(source, "<{}> {}".format(sender, toDisplay.strip()))
             dave.config.redis.lset(key, i, toSave.strip())
             return
