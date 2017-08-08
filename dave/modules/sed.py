@@ -26,7 +26,7 @@ def sed(bot, args, sender, source):
 
         try:
             # bold replacements
-            toDisplay = re.sub(args[3], "\x02{}\x0F".format(args[5]) if args[5] else "",
+            toDisplay = re.sub(args[3], "\x02{}\x02".format(args[5]) if args[5] else "",
                                msg, count=0 if 'g' in flags else 1, flags=f)
             toSave = re.sub(args[3], args[5], msg,
                             count=0 if 'g' in flags else 1, flags=f)
