@@ -53,9 +53,9 @@ def weather(bot, args, sender, source):
         int(round(weather["currently"]["windSpeed"])),
         int(round(weather["currently"]["windSpeed"] * 1.60934)),
         int(round(weather["currently"]["humidity"] * 100)),
-        arrow.get(weather["daily"]["data"][0]["sunriseTime"]).to(timezone["zoneName"]).strftime("%H:%M").lower(),
-        arrow.get(weather["daily"]["data"][0]["sunsetTime"]).to(timezone["zoneName"]).strftime("%H:%M").lower(),
-        timezone["abbreviation"]
+        arrow.get(weather["daily"]["data"][0]["sunriseTime"]).to(timezone["zoneName"] or "UTC").strftime("%H:%M").lower(),
+        arrow.get(weather["daily"]["data"][0]["sunsetTime"]).to(timezone["zoneName"] or "UTC").strftime("%H:%M").lower(),
+        timezone["abbreviation"] or "UTC"
     ))
 
 
