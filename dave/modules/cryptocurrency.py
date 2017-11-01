@@ -20,7 +20,7 @@ def btc(bot, args, sender, source):
 
 @dave.module.help("Syntax: ltc. Get the current LTC prices from preev.")
 @dave.module.command(["ltc"], '?([a-zA-Z]*)?')
-def btc(bot, args, sender, source):
+def ltc(bot, args, sender, source):
     crypto(bot, ['ltc', args[0]], sender, source)
 
 @dave.module.help("Syntax: crypto [btc/ltc/etc] (usd/gbp/btc/etc). Get current prices "
