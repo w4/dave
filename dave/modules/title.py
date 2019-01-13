@@ -45,7 +45,7 @@ def link_parse(bot, args, sender, source):
             title = str(dave.config.redis.get("site:{}".format(match)), 'utf8')
 
         if title is not None:
-            titles.append(assembleFormattedText(A.bold[title]))
+            titles.append(assembleFormattedText(A.normal[title]))
 
     if titles:
         # remove duplicates

@@ -39,8 +39,8 @@ def post(bot, args, sender, source):
     bot.msg(source, assembleFormattedText(
         A.normal[
             A.bold[A.fg.lightRed["[NSFW] "]] if resp["over_18"] else "",
-            A.bold[resp["title"][:75] + (resp["title"][75:] and '...')],
-            " by ", A.bold[resp["author"]],
+            A.normal[resp["title"][:75] + (resp["title"][75:] and '...')],
+            " by ", A.normal[resp["author"]],
             " (/r/{}) {} comments, {} points, posted {}".format(
                 resp["subreddit"],
                 intcomma(resp["num_comments"]),
@@ -88,7 +88,7 @@ def subreddit(bot, args, sender, source):
     bot.msg(source, assembleFormattedText(
         A.normal[
             A.bold[A.fg.lightRed["[NSFW] "]] if resp["over18"] else "",
-            A.bold[resp["title"]],
+            A.normal[resp["title"]],
             " ({}), a community for {}. {} subscribers, {} browsing right now.".format(
                 resp["display_name_prefixed"],
                 naturaldelta(datetime.utcnow().timestamp() - resp["created"]),
@@ -129,7 +129,7 @@ def user(bot, args, sender, source):
 
     bot.msg(source, assembleFormattedText(
         A.normal[
-            A.bold[resp["name"]],
+            A.normal[resp["name"]],
             ", a redditor for {}. {} link karma, {} comment karma.".format(
                 naturaldelta(datetime.utcnow().timestamp() - resp["created"]),
                 intcomma(resp["link_karma"]),
