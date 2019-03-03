@@ -19,6 +19,9 @@ def link_parse(bot, args, sender, source):
     titles = []
 
     for match in matches:
+        if "gfycat" in match or ".webm" in match:
+            continue
+
         if not dave.config.redis.exists("site:{}".format(match)):
             try:
                 res = get(match, timeout=3,
@@ -32,15 +35,19 @@ def link_parse(bot, args, sender, source):
                     res.headers.get('Content-Type', ''):
                 res.encoding = res.apparent_encoding
 
-            soup = BeautifulSoup(res.text, "html.parser")
-            title = soup.title.string
+            try:
+                soup = BeautifulSoup(res.text, "html.parser")
+                title = soup.title.string
 
-            if title is not None:
-                title = re.sub(r"(\r?\n|\r| )+",
-                               " ",
-                               title.strip())
-                title = title[:140] + (title[140:] and '...')
-                dave.config.redis.setex("site:{}".format(match), 300, title)
+                if title is not None:
+                    title = re.sub(r"(\r?\n|\r| )+",
+                                   " ",
+                                   title.strip())
+                    title = title[:140] + (title[140:] and '...')
+                    dave.config.redis.setex("site:{}".format(match), 300, title)
+            except BaseException as e:
+                log.msg("Failed to grab title", e)
+                return
         else:
             title = str(dave.config.redis.get("site:{}".format(match)), 'utf8')
 
