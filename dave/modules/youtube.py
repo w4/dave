@@ -11,9 +11,9 @@ import isodate
 BASE_URL = "https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet," \
            "statistics&key={}".format(dave.config.config["api_keys"]["youtube"])
 
-@dave.module.match(r'.*https?://(?:www\.)?youtu(?:be\.com/watch\?v=|\.be/)([\w\-\_]*)(&(amp;)?[\w\=]*)?.*')
-@dave.module.dont_always_run_if_run()
-@dave.module.ratelimit(1, 1)
+# @dave.module.match(r'.*https?://(?:www\.)?youtu(?:be\.com/watch\?v=|\.be/)([\w\-\_]*)(&(amp;)?[\w\=]*)?.*')
+# @dave.module.dont_always_run_if_run()
+# @dave.module.ratelimit(1, 1)
 def youtubevideo(bot, args, sender, source):
     """Ran whenever a YouTube video is sent"""
     if not dave.config.redis.exists("youtube:{}".format(args[0])):
@@ -21,7 +21,7 @@ def youtubevideo(bot, args, sender, source):
                   headers={'user-agent': 'irc bot (https://github.com/w4)'})
 
         if req.status_code != 200:
-            bot.msg(source, "Bad response from YouTube API: {}".format(req.status_code))
+            print("{} from YouTube API: {}", req.status_code, req.json())
             return
 
         req = req.json()
