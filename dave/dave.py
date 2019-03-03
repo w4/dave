@@ -80,7 +80,7 @@ class Dave(irc.IRCClient):
             self.nickname,
             # make the bot name optional if the command was sent via pm to the bot
             "?" if channel == nick else ""
-        ), msg)
+        ), msg, re.IGNORECASE)
 
         # true if this message invokes the bot directly
         invoked = bool(match)
