@@ -36,8 +36,10 @@ def quote(bot, args, sender, source):
         random.randrange(query.count())
     ).first()
 
+    attr = " by " + row.attributed if row.attributed else ""
+
     bot.reply(source, sender, assembleFormattedText(A.normal[
-        A.bold[row.quote], " by ", (row.attributed or row.added_by)
+        A.bold[row.quote], attr
     ]))
 
 @dave.module.help("Syntax: fq [search]. Search for a quote.")
