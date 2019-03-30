@@ -4,8 +4,11 @@ import dave.module
 import dave.config
 import uuid
 import random
+import os
 from dave.models import Quote
 from twisted.words.protocols.irc import assembleFormattedText, attributes as A
+
+random.seed(os.urandom(64))
 
 @dave.module.help("Syntax: aq [quote] (-- attribute). Add a quote.")
 @dave.module.command(["aq", "addquote"], "(.*?)(?: (?:--|—) ?(.+?))?$")
@@ -32,14 +35,10 @@ def quote(bot, args, sender, source):
         bot.reply(source, sender, "No quotes found.")
         return
 
-    row = query.offset(
-        random.randrange(query.count())
-    ).first()
-
-    attr = " by " + row.attributed if row.attributed else ""
+    row = query.offset(random.randrange(query.count())).first()
 
     bot.reply(source, sender, assembleFormattedText(A.normal[
-        A.bold[row.quote], attr
+        "<{}> ".format(row.attributed.strip()) if row.attributed else "", A.bold[row.quote]
     ]))
 
 @dave.module.help("Syntax: fq [search]. Search for a quote.")
@@ -59,13 +58,13 @@ def find_quote(bot, args, sender, source):
         bot.reply(source, sender, "No results for query.")
 
     if len(quotes) > 3:
-        bot.reply(source, sender, "Your query yielded too many results ({}), here's a " \
+        bot.reply(source, sender, "Your query returned too many results ({}), here's a " \
                                   "random sample:".format(len(quotes)))
         quotes = random.sample(quotes, 3)
 
     for quote in quotes:
         bot.reply(source, sender, assembleFormattedText(A.normal[
-            A.bold[quote.quote], " by ", (quote.attributed or quote.added_by)
+            "<{}> ".format(quote.attributed.strip()) if quote.attributed else "", A.bold[quote.quote], " (added by {})".format(quote.added_by)
         ]))
 
 @dave.module.help("Syntax: dq [uuid]. Allow the quote owner to delete a quote.")
