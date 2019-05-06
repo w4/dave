@@ -10,17 +10,16 @@ from twisted.words.protocols.irc import assembleFormattedText, attributes as A
 
 random.seed(os.urandom(64))
 
-@dave.module.help("Syntax: aq [quote] (-- attribute). Add a quote.")
-@dave.module.command(["aq", "addquote"], "(.*?)(?: (?:--|—) ?(.+?))?$")
+@dave.module.help("Syntax: aq [quote]. Add a quote.")
+@dave.module.command(["aq", "addquote"], "(.*)$")
 @dave.module.ratelimit(1, 2)
 def add_quote(bot, args, sender, source):
     generated_uuid = str(uuid.uuid4())
-    quote = Quote(id=generated_uuid, quote=args[0], attributed=args[1], added_by=sender)
+    quote = Quote(id=generated_uuid, quote=args[0], attributed=None, added_by=sender)
     dave.config.session.add(quote)
 
     bot.reply(source, sender, assembleFormattedText(
-        A.normal["Successfully added quote: ", A.bold[args[0]], " by ",
-                 (args[1] or sender)]))
+        A.normal["Successfully added quote: ", A.bold[args[0]]))
 
     bot.msg(sender, "You can remove this quote later using \"dave dq {}\"".format(
         generated_uuid))
@@ -64,7 +63,7 @@ def find_quote(bot, args, sender, source):
 
     for quote in quotes:
         bot.reply(source, sender, assembleFormattedText(A.normal[
-            "<{}> ".format(quote.attributed.strip()) if quote.attributed else "", A.bold[quote.quote], " (added by {})".format(quote.added_by)
+            "<{}> ".format(quote.attributed.strip()) if quote.attributed else "", A.bold[quote.quote]
         ]))
 
 @dave.module.help("Syntax: dq [uuid]. Allow the quote owner to delete a quote.")
