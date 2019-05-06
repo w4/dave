@@ -19,7 +19,7 @@ def add_quote(bot, args, sender, source):
     dave.config.session.add(quote)
 
     bot.reply(source, sender, assembleFormattedText(
-        A.normal["Successfully added quote: ", A.bold[args[0]]))
+        A.normal["Successfully added quote: ", A.bold[args[0]]]))
 
     bot.msg(sender, "You can remove this quote later using \"dave dq {}\"".format(
         generated_uuid))
