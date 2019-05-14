@@ -1,6 +1,6 @@
 """Quote system"""
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.functions import random as sqlrandom
 import dave.module
 import dave.config
 import uuid
@@ -35,7 +35,7 @@ def quote(bot, args, sender, source):
         bot.reply(source, sender, "No quotes found.")
         return
 
-    row = query.order_by(func.random()).first()
+    row = query.order_by(sqlrandom()).first()
 
     bot.reply(source, sender, assembleFormattedText(A.normal[
         "<{}> ".format(row.attributed.strip()) if row.attributed else "", A.bold[row.quote]
