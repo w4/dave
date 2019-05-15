@@ -20,13 +20,13 @@ def pollen(bot, args, sender, source):
         res = get("https://www.bbc.co.uk/weather/{}".format(postcode))
 
         soup = BeautifulSoup(res.text, "html.parser")
-        element = soup.find_all("div", class_="environmental-index pollen-index")
+        element = soup.find_all("div", class_="wr-c-environmental-data")
 
         if element:
-            pollen = element[0].find("span")
+            pollen = element[0].find("span", class_="wr-c-environmental-data__icon-text")
 
             if pollen:
-                text = pollen.text
+                text = {'L': 'low', 'M': 'medium', 'H': 'high'}[pollen.text] or pollen.text
                 dave.config.redis.setex("pollen:{}".format(postcode), 1800, text)
     else:
         text = dave.config.redis.get("pollen:{}".format(postcode))
