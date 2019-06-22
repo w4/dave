@@ -38,7 +38,7 @@ def quote(bot, args, sender, source):
     row = query.order_by(sqlrandom()).first()
 
     bot.reply(source, sender, assembleFormattedText(A.normal[
-        "<{}> ".format(row.attributed.strip()) if row.attributed else "", A.bold[row.quote]
+        "<{}> ".format(row.attributed.strip()) if row.attributed else "", A.normal[row.quote]
     ]))
 
 @dave.module.help("Syntax: fq [search]. Search for a quote.")
@@ -64,7 +64,7 @@ def find_quote(bot, args, sender, source):
 
     for quote in quotes:
         bot.reply(source, sender, assembleFormattedText(A.normal[
-            "<{}> ".format(quote.attributed.strip()) if quote.attributed else "", A.bold[quote.quote]
+            "<{}> ".format(quote.attributed.strip()) if quote.attributed else "", A.normal[quote.quote]
         ]))
 
 @dave.module.help("Syntax: dq [uuid]. Allow the quote owner to delete a quote.")
