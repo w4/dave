@@ -1,5 +1,5 @@
 twisted==19.7.0
-pyopenssl==16.2.0
+pyopenssl==17.5.0
 service_identity==17.0.0
 enum34==1.1.6
 beautifulsoup4==4.6.0
