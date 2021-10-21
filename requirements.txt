@@ -13,6 +13,6 @@ psycopg2==2.7.2
 lxml==3.8.0
 pysocks==1.6.7
 wolframalpha==3.0
-babel==2.4.0
+babel==2.9.1
 humanize==0.5.1
 isodate==0.5.4
