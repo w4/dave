@@ -10,7 +10,7 @@ arrow==0.10.0
 sqlalchemy==1.1.11
 alembic==0.9.3
 psycopg2==2.7.2
-lxml==3.8.0
+lxml==4.9.1
 pysocks==1.6.7
 wolframalpha==3.0
 babel==2.4.0
